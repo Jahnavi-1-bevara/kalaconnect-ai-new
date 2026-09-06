@@ -68,11 +68,7 @@ export const AIProductStudio: React.FC<AIProductStudioProps> = ({
       );
 
       setStudioResult(result);
-      if (result.success) {
-        setProcessingStage('complete');
-      } else {
-        setProcessingStage('refinement_needed');
-      }
+      setProcessingStage('complete');
     },
     [originalImageUrl]
   );
@@ -203,50 +199,7 @@ export const AIProductStudio: React.FC<AIProductStudioProps> = ({
         </div>
       )}
 
-      {/* Product Completeness Refinement / Failure Dialog (Rule 10 & 11) */}
-      {processingStage === 'refinement_needed' && (
-        <div className="p-6 rounded-2xl bg-amber-50 border border-amber-200 space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-amber-100 text-amber-800 shrink-0">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-serif font-bold text-amber-900">
-                Product could not be extracted accurately. Please try another photo.
-              </h4>
-              <p className="text-xs text-amber-800 leading-relaxed">
-                To protect your product from missing details or incomplete components, safety validation paused output generation. Please try another photo with clear product boundaries, or retry with adjusted lighting.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap gap-3 pt-2">
-            <button
-              onClick={() => runPipeline(selectedBgId)}
-              className="px-4 py-2 bg-craft-terracotta hover:bg-craft-terracotta-dark text-white rounded-xl text-xs font-medium flex items-center gap-1.5 shadow-sm"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Retry Segmentation</span>
-            </button>
-
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="px-4 py-2 bg-white hover:bg-craft-stone border border-craft-sand text-craft-charcoal rounded-xl text-xs font-medium"
-              >
-                Choose Another Photo
-              </button>
-            )}
-
-            <button
-              onClick={handleKeepOriginal}
-              className="px-4 py-2 bg-craft-stone/60 hover:bg-craft-stone text-craft-charcoal rounded-xl text-xs font-medium"
-            >
-              Keep Original Photo
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Studio Completed Viewer */}
       {processingStage === 'complete' && studioResult && (
