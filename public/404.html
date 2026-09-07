@@ -2,17 +2,70 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23C85A32'/><path d='M30 70 L50 28 L70 70 L56 70 L50 54 L44 70 Z' fill='%23FDFBF7'/><circle cx='50' cy='42' r='5' fill='%23B8860B'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="KalaConnect AI — From Your Craft to the World. Empowering Indian artisans with AI product photography, background removal, voice-powered catalog creation, and global marketplace access." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23C85A32'/><path d='M30 70 L50 28 L70 70 L56 70 L50 54 L44 70 Z' fill='%23FDFBF7'/><circle cx='50' cy='42' r='5' fill='%23B8860B'/></svg>" />
     <title>KalaConnect AI — From Your Craft to the World.</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="./assets/index-DR_FJlsd.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CsF7GJwS.css">
+    <script>
+      (function() {
+        var path = window.location.pathname;
+        var search = window.location.search;
+        var hash = window.location.hash;
+
+        var segments = path.split('/').filter(Boolean);
+        var isGitHubPages = window.location.hostname.endsWith('github.io');
+        var repo = (isGitHubPages && segments.length > 0) ? ('/' + segments[0]) : '';
+        var routeSegments = isGitHubPages ? segments.slice(1) : segments;
+        var route = '/' + routeSegments.join('/');
+
+        var cleanSearch = search ? '&' + search.replace(/^\?/, '') : '';
+        var target = repo + '/?route=' + encodeURIComponent(route) + cleanSearch + hash;
+
+        window.location.replace(target);
+      })();
+    </script>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #FDFBF7;
+        color: #1A1D1B;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .loading-box {
+        text-align: center;
+      }
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #EAE1D5;
+        border-top-color: #C85A32;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .brand {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #C85A32;
+        margin-bottom: 4px;
+      }
+      .desc {
+        color: #636A66;
+        font-size: 0.9rem;
+      }
+    </style>
   </head>
-  <body class="bg-craft-linen text-craft-charcoal font-sans antialiased min-h-screen selection:bg-craft-terracotta selection:text-white">
-    <div id="root"></div>
+  <body>
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div class="brand">KalaConnect AI</div>
+      <div class="desc">Loading handcrafted collection...</div>
+    </div>
   </body>
 </html>

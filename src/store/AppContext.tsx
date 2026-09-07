@@ -189,8 +189,17 @@ function getRouteInfo(): { view: string; role?: UserRole } {
       return { view: paramView, role: ROUTE_VIEW_MAP[targetRoute]?.role };
     }
     const paramRoute = searchParams.get('route');
-    if (paramRoute && ROUTE_VIEW_MAP[paramRoute]) {
-      return ROUTE_VIEW_MAP[paramRoute];
+    if (paramRoute) {
+      const decoded = decodeURIComponent(paramRoute);
+      const cleanRoute = decoded.replace(/\/$/, '') || '/';
+      if (ROUTE_VIEW_MAP[cleanRoute]) {
+        return ROUTE_VIEW_MAP[cleanRoute];
+      }
+      for (const [route, info] of Object.entries(ROUTE_VIEW_MAP)) {
+        if (route !== '/' && (cleanRoute.endsWith(route) || cleanRoute.toLowerCase().endsWith(route.toLowerCase()))) {
+          return info;
+        }
+      }
     }
   } catch {
     // Ignore search params parsing errors
@@ -342,6 +351,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('hashchange', handlePopState);
     };
+  }, []);
+
+  // Clean up URL query parameter (?route=...) seamlessly on initial mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search) {
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const paramRoute = searchParams.get('route');
+        const paramView = searchParams.get('view');
+        let targetRoute = paramRoute ? decodeURIComponent(paramRoute) : (paramView ? VIEW_ROUTE_MAP[paramView] : null);
+        if (targetRoute) {
+          targetRoute = targetRoute.replace(/\/$/, '') || '/';
+          if (ROUTE_VIEW_MAP[targetRoute]) {
+            const subpath = getSubpathPrefix();
+            const cleanPath = subpath ? `${subpath}${targetRoute === '/' ? '/' : targetRoute}` : targetRoute;
+            window.history.replaceState({ view: ROUTE_VIEW_MAP[targetRoute].view }, '', cleanPath);
+          }
+        }
+      } catch {
+        // Ignore URL rewrite errors
+      }
+    }
   }, []);
 
   // Sync to LocalStorage defensively

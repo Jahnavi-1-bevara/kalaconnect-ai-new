@@ -72,14 +72,30 @@ const server = http.createServer(async (req, res) => {
 
   // Static file serving for SPA
   let reqPath = req.url.split('?')[0];
-  if (reqPath.startsWith('/kalaconnect-ai')) {
+  if (reqPath.startsWith('/kalaconnect-ai-new')) {
+    reqPath = reqPath.replace(/^\/kalaconnect-ai-new/, '') || '/';
+  } else if (reqPath.startsWith('/kalaconnect-ai-v2')) {
+    reqPath = reqPath.replace(/^\/kalaconnect-ai-v2/, '') || '/';
+  } else if (reqPath.startsWith('/kalaconnect-ai')) {
     reqPath = reqPath.replace(/^\/kalaconnect-ai/, '') || '/';
   } else if (reqPath.startsWith('/handcraft')) {
     reqPath = reqPath.replace(/^\/handcraft/, '') || '/';
   }
-  let filePath = path.join(DIST_DIR, reqPath);
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(DIST_DIR, 'index.html');
+
+  let filePath;
+  if (reqPath.includes('/assets/')) {
+    const assetPart = reqPath.slice(reqPath.lastIndexOf('/assets/') + '/assets/'.length);
+    filePath = path.join(DIST_DIR, 'assets', assetPart);
+  } else {
+    filePath = path.join(DIST_DIR, reqPath);
+    if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+      const baseFile = path.join(DIST_DIR, path.basename(reqPath));
+      if (fs.existsSync(baseFile) && !fs.statSync(baseFile).isDirectory()) {
+        filePath = baseFile;
+      } else {
+        filePath = path.join(DIST_DIR, 'index.html');
+      }
+    }
   }
 
   const ext = path.extname(filePath).toLowerCase();

@@ -1,30 +1,9 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { removeBackground } from '@imgly/background-removal-node';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-function githubPagesSpaPlugin(): Plugin {
-  return {
-    name: 'github-pages-spa',
-    closeBundle() {
-      try {
-        const distIndex = path.resolve(__dirname, 'dist', 'index.html');
-        const dist404 = path.resolve(__dirname, 'dist', '404.html');
-        if (fs.existsSync(distIndex)) {
-          fs.copyFileSync(distIndex, dist404);
-        }
-      } catch {
-        // Ignore file copy errors
-      }
-    },
-  };
-}
 
 function segmentationApiPlugin(): Plugin {
   const handler = async (req: any, res: any, next: any) => {
@@ -96,7 +75,7 @@ function segmentationApiPlugin(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   base: process.env.VITE_BASE || './',
-  plugins: [react(), segmentationApiPlugin(), githubPagesSpaPlugin()],
+  plugins: [react(), segmentationApiPlugin()],
   server: {
     host: '0.0.0.0',
     port: 5173,
