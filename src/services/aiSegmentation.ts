@@ -6,6 +6,10 @@ export interface ProcessingProgressCallback {
   (stage: AIProcessingStage, progressPercent: number, message: string): void;
 }
 
+if (typeof window !== 'undefined') {
+  (window as any).__imglyRemoveBackground = removeBackground;
+}
+
 /**
  * Loads an image safely into an HTMLImageElement
  */
@@ -120,6 +124,7 @@ export const processCraftImage = async (
     const srcImageData = srcCtx.getImageData(0, 0, width, height);
     const srcPixels = srcImageData.data;
 
+    const payloadImage = srcCanvas.toDataURL('image/jpeg', 0.92);
     let cutoutDataUrl = '';
     let isSegmentationSuccessful = false;
 
@@ -130,7 +135,6 @@ export const processCraftImage = async (
     try {
       onProgress?.('segmenting', 35, 'Executing neural network object-level segmentation...');
 
-      const payloadImage = srcCanvas.toDataURL('image/jpeg', 0.92);
       const response = await fetch('/api/segment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -155,11 +159,18 @@ export const processCraftImage = async (
     if (!isSegmentationSuccessful) {
       try {
         onProgress?.('segmenting', 45, 'Loading browser WASM segmentation engine...');
-        const blob = await removeBackground(srcImageData, {
-          model: 'isnet_fp16',
+        const blob = await removeBackground(payloadImage, {
+          publicPath: 'https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/',
+          model: 'isnet_quint8',
           output: {
             format: 'image/png',
             quality: 0.98,
+          },
+          progress: (_key: string, current: number, total: number) => {
+            if (typeof total === 'number' && total > 0) {
+              const pct = 45 + Math.round((current / total) * 30);
+              onProgress?.('segmenting', Math.min(75, pct), `Running neural network (${Math.round((current / total) * 100)}%)...`);
+            }
           },
         });
 
@@ -251,12 +262,17 @@ export const processCraftImage = async (
           const edgeFactor = edges[idx];
 
           let fgScore = 0;
-          if (minBgDist > 20) fgScore += (minBgDist - 20) / 45;
-          fgScore += centerPrior * 0.45;
-          fgScore += edgeFactor * 0.45;
+          if (minBgDist > 25) {
+            fgScore = Math.min(1.0, (minBgDist - 25) / 35);
+            fgScore += centerPrior * 0.35;
+            fgScore += edgeFactor * 0.3;
+          } else {
+            // Strictly background color (cardboard, surface, floor)
+            fgScore = 0;
+          }
 
           if (x < width * 0.03 || x > width * 0.97 || y < height * 0.03 || y > height * 0.97) {
-            fgScore *= 0.3;
+            fgScore *= 0.2;
           }
 
           alphaMap[idx] = Math.max(0, Math.min(1, fgScore));
@@ -452,3 +468,7 @@ export const processCraftImage = async (
     };
   }
 };
+
+if (typeof window !== 'undefined') {
+  (window as any).__processCraftImage = processCraftImage;
+}
